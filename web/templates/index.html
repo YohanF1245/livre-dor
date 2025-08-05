@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <title>Livre d'or</title>
+</head>
+<body>
+  <h1>Livre d'or</h1>
+  <form action="/" method="post">
+    <input type="text" name="name" placeholder="Votre nom" required>
+    <br><br>
+    <textarea name="comment" placeholder="Votre message" required></textarea>
+    <br><br>
+    <button type="submit">Envoyer</button>
+  </form>
+  <hr>
+  <h2>Commentaires :</h2>
+  <ul>
+    {% for comment in comments %}
+  <p><strong>{{ comment[1] }}</strong> : {{ comment[2] }}</p>
+  <p>Résumé : {{ comment[3] }}</p>
+  <p>Sentiment : {{ comment[4] }}</p>
+  <p>Mots clés : {{ comment[5] }}</p>
+{% endfor %}
+  </ul>
+</body>
+</html>
