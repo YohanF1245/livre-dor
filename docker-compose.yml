@@ -1,0 +1,70 @@
+version: "2.6"
+
+services:
+  db:
+    image: postgres:16
+    container_name: db
+    environment:
+      POSTGRES_USER: livredor
+      POSTGRES_PASSWORD: livredor
+      POSTGRES_DB: livredor
+    ports:
+      - "6000:5432"
+    volumes:
+      - db_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U livredor"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+
+  web:
+    build: ./web
+    container_name: goldbook_web
+    environment:
+      DB_HOST: db
+      DB_NAME: livredor
+      DB_USER: livredor
+      DB_PASS: livredor
+      N8N_WEBHOOK_URL: http://n8n:5678/webhook/new-comment
+    ports:
+      - "6001:5000"
+    depends_on:
+      db:
+        condition: service_healthy
+      n8n:
+        condition: service_started
+
+  n8n:
+    image: n8nio/n8n:latest
+    ports:
+      - "5678:5678"
+    environment:
+      DB_TYPE: sqlite
+      GENERIC_TIMEZONE: Europe/Paris
+      N8N_BASIC_AUTH_ACTIVE: "true"
+      N8N_BASIC_AUTH_USER: admin
+      N8N_BASIC_AUTH_PASSWORD: admin
+    volumes:
+      - n8n_data:/home/node/.n8n
+
+  ollama:
+    image: ollama/ollama:latest
+    ports:
+      - "11434:11434"
+    volumes:
+      - ollama_data:/root/.ollama
+    restart: unless-stopped
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu]
+
+volumes:
+  db_data:
+  n8n_data:
+  ollama_data:
