@@ -1,0 +1,245 @@
+{
+  "name": "My workflow",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "/new-comment",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        -320,
+        64
+      ],
+      "id": "c2ed34fa-4b3c-4829-bf91-00a2f55dcdee",
+      "name": "Webhook",
+      "webhookId": "f30116c7-61ea-4842-8e05-776ee254bb19",
+      "notesInFlow": false
+    },
+    {
+      "parameters": {
+        "jsCode": "const output = [];\n\nfor (const item of $input.all()) {\n  const comment = item.json.comment;\n  \n  // Si pas de commentaire ou vide, on skip\n  if (!comment || comment.trim() === \"\") {\n    // On ignore cet item sans générer d’erreur\n    continue;\n  }\n  \n  const prompt = `Analyse ce commentaire et determine si il est positif, neutre ou négatif : \"${comment}\". Réponds uniquement avec un JSON valide de la forme {\"sentiment\": \"positif|neutre|négatif\", \"resume\": \"<résumé en moins de 15 mots>\"}.`;\n  \n  output.push({\n    json: {\n      ...item.json,\n      prompt,\n    },\n    pairedItem: { item: $input.indexOf(item) },\n  });\n}\n\nreturn output;"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        192,
+        -240
+      ],
+      "id": "042608fb-e80e-406a-9082-281d50910b03",
+      "name": "Code"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "http://ollama:11434/api/generate",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "{\n  \"model\": \"phi3\",\n  \"prompt\": \"{{$json[\\\"prompt\\\"]}}\",\n  \"max_tokens\": 1000,\n  \"temperature\": 0,\n  \"stream\": false\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        464,
+        -240
+      ],
+      "id": "1edf40c7-9ec9-4a3b-b81a-78774335aa75",
+      "name": "HTTP Request"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "5e412899-2ce1-46f6-9055-872072a13a93",
+              "name": "test",
+              "value": "hook recu",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -736,
+        -192
+      ],
+      "id": "c4f6451d-0213-4515-81f7-edec928ad536",
+      "name": "Edit Fields"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "http://ollama:11434/api/generate",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"model\": \"phi3\",\n  \"prompt\": \"Voici un commentaire d'utilisateur : \\\"{{ $json.body.comment }}\\\"\\n\\n1) Résume ce commentaire en une phrase.\\n2) Analyse le sentiment : positif, neutre, ou négatif.\\nRéponds uniquement en JSON : {\\\\\\\"résumé\\\\\\\": \\\\\\\"...\\\\\\\", \\\\\\\"sentiment\\\\\\\": \\\\\\\"...\\\\\\\"}.\",\n  \"stream\": false\n}\n",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -64,
+        64
+      ],
+      "id": "322c0205-2958-4a4a-8483-52c7228e45ba",
+      "name": "HTTP Request1"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "96c0e7d4-48da-4a62-bc82-3b66f8ac88ac",
+              "name": "jsonBody",
+              "value": "{   model: \"phi3\",   prompt: \"Voici un commentaire d'utilisateur : \\\"\" + $json[\"comment\"] + \"\\\"\\n\\n1) Résume ce commentaire en une phrase.\\n2) Analyse le sentiment : positif, neutre, ou négatif.\\nRéponds uniquement en JSON : {\\\"résumé\\\": \\\"...\\\", \\\"sentiment\\\": \\\"...\\\"}.\" }",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -400,
+        -144
+      ],
+      "id": "e5aafddd-2d82-4526-902d-9f92b4232604",
+      "name": "Edit Fields1"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "http://ollama:11434/api/generate",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"model\": \"phi3\",\n  \"prompt\": \"Voici un commentaire d'utilisateur : \\\"{{$json.comment}}\\\"\\n\\n1) Résume ce commentaire en une phrase.\\n2) Analyse le sentiment : positif, neutre, ou négatif.\\nRéponds uniquement en JSON : {\\\"résumé\\\": \\\"...\\\", \\\"sentiment\\\": \\\"...\\\"}.\",\n  \"stream\": false\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -592,
+        -224
+      ],
+      "id": "d0c6c338-a616-464b-a93a-bcb3734c7951",
+      "name": "HTTP Request2"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "aee62928-eb66-4fc5-91e8-904c0f9b9069",
+              "name": "name",
+              "value": "={{$json[\"body\"][\"comment\"]}}",
+              "type": "string"
+            },
+            {
+              "id": "b386f1cf-7233-4763-a442-8dc1d63f259a",
+              "name": "comment",
+              "value": "={{$json[\"body\"][\"comment\"]}}",
+              "type": "string"
+            }
+          ]
+        },
+        "includeOtherFields": "={{ false }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -128,
+        -96
+      ],
+      "id": "2348447b-7ba4-46a6-a267-3ccde390fb2d",
+      "name": "Edit Fields2"
+    }
+  ],
+  "pinData": {
+    "HTTP Request": [
+      {
+        "json": {
+          "name": "First item",
+          "code": 1
+        }
+      },
+      {
+        "json": {
+          "name": "Second item",
+          "code": 2
+        }
+      }
+    ]
+  },
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request": {
+      "main": [
+        []
+      ]
+    },
+    "Edit Fields1": {
+      "main": [
+        []
+      ]
+    },
+    "HTTP Request1": {
+      "main": [
+        []
+      ]
+    },
+    "Edit Fields": {
+      "main": [
+        []
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "fed4d6c5-877d-4c5c-be40-46e454e523b1",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "93d825bc7c4da3815821a6487db505d2e6edab50f4ef01e2c9937f92cbff7f1f"
+  },
+  "id": "xGTeGEAuU8hGDIiO",
+  "tags": []
+}
