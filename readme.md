@@ -23,7 +23,6 @@ Après réception de la réponse, n8n effectue une requête PUT vers le serveur 
    ```
 3. Télécharger (pull) le modèle IA phi3 dans le conteneur Ollama :
 
-bash
 ```
 docker exec -it <container-ollama> bash
 ollama pull phi3
