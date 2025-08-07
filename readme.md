@@ -29,7 +29,19 @@ docker exec -it <container-ollama> bash
 ollama pull phi3
 exit
 ```
-4. Aller sur l’interface n8n et importer le workflow workflow.json fourni
+
+pour le modele phi3
+```
+docker exec -it <container-ollama> bash
+ollama pull mistral:instruct
+exit
+```
+pour le modele mistral instruct
+4. Aller sur l’interface n8n et importer le workflow workflow-phi3.json ou workflow-mistral-instruct (selon le modèle choisi) fourni <br>
+### Choix du modèle
+Ce projet propose deux workflows distincts selon le modèle de langage utilisé : phi3 et mistral-instruct.
+Le modèle phi3 est plus léger et rapide, idéal si vous cherchez des réponses rapides avec un compromis sur la finesse des analyses. En revanche, il peut parfois générer des erreurs de parsing JSON ou des résultats moins précis.<br>
+Le modèle mistral-instruct est plus puissant et précis, offrant des réponses plus robustes et réalistes, au prix d’un temps de traitement plus long et d’une image Docker plus volumineuse. Ce modèle est recommandé si la qualité et la fiabilité des résultats sont prioritaires.<br>
 
 ## Technologies utilisées
 - Flask (API backend)
