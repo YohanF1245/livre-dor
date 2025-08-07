@@ -2,7 +2,7 @@
 <html lang="fr">
 <head>
   <meta charset="UTF-8" />
-  <title>Livre d'or</title>
+  <title>Livre d'or - Analytics Dashboard</title>
   <style>
     * {
       margin: 0;
@@ -14,257 +14,335 @@
       font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
       background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
       min-height: 100vh;
-      padding: 2rem;
       color: #333;
     }
 
     .container {
-      max-width: 800px;
-      margin: 0 auto;
+      display: grid;
+      grid-template-columns: 300px 1fr;
+      min-height: 100vh;
+      gap: 0;
+    }
+
+    .sidebar {
       background: rgba(255, 255, 255, 0.95);
-      border-radius: 20px;
       backdrop-filter: blur(10px);
-      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
-      overflow: hidden;
+      padding: 1.5rem;
+      box-shadow: 2px 0 20px rgba(0, 0, 0, 0.1);
+      overflow-y: auto;
     }
 
-    .header {
-      background: linear-gradient(135deg, #ff6b6b, #feca57, #48dbfb, #ff9ff3);
-      background-size: 400% 400%;
-      animation: gradientShift 8s ease infinite;
-      padding: 2rem;
+    .main-content {
+      padding: 1.5rem;
+      overflow-y: auto;
+    }
+
+    .logo {
       text-align: center;
-      color: white;
-      text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
-    }
-
-    @keyframes gradientShift {
-      0% { background-position: 0% 50%; }
-      50% { background-position: 100% 50%; }
-      100% { background-position: 0% 50%; }
-    }
-
-    h1 {
-      font-size: 2.5rem;
-      font-weight: 300;
-      letter-spacing: 2px;
-      margin-bottom: 0.5rem;
-    }
-
-    .content {
-      padding: 2rem;
-    }
-
-    .form-container {
-      background: linear-gradient(135deg, rgba(255, 255, 255, 0.9), rgba(247, 250, 252, 0.9));
-      padding: 2rem;
       margin-bottom: 2rem;
-      border-radius: 15px;
-      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
-      border: 1px solid rgba(255, 255, 255, 0.3);
-      transition: all 0.3s ease;
-    }
-
-    .form-container:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 15px 35px rgba(0, 0, 0, 0.15);
-    }
-
-    label {
-      display: block;
-      margin-bottom: 0.5rem;
-      font-weight: 600;
-      color: #4a5568;
-      font-size: 0.95rem;
-    }
-
-    input[type="text"], input[type="number"], textarea {
-      width: 100%;
       padding: 1rem;
-      margin-bottom: 1.5rem;
-      border: 2px solid #e2e8f0;
+      background: linear-gradient(135deg, #667eea, #764ba2);
+      color: white;
       border-radius: 10px;
-      font-size: 1rem;
-      transition: all 0.3s ease;
-      background: rgba(255, 255, 255, 0.8);
-      backdrop-filter: blur(5px);
+      font-size: 1.2rem;
+      font-weight: 600;
     }
 
-    input[type="text"]:focus, input[type="number"]:focus, textarea:focus {
+    .form-section {
+      margin-bottom: 1.5rem;
+      background: rgba(247, 250, 252, 0.8);
+      padding: 1rem;
+      border-radius: 8px;
+      border-left: 3px solid #667eea;
+    }
+
+    .form-section h3 {
+      font-size: 0.9rem;
+      margin-bottom: 1rem;
+      color: #4a5568;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    input, textarea, select, button {
+      width: 100%;
+      padding: 0.6rem;
+      margin-bottom: 0.8rem;
+      border: 1px solid #e2e8f0;
+      border-radius: 6px;
+      font-size: 0.9rem;
+    }
+
+    input:focus, textarea:focus, select:focus {
       outline: none;
       border-color: #667eea;
-      box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
-      background: rgba(255, 255, 255, 0.95);
+      box-shadow: 0 0 0 2px rgba(102, 126, 234, 0.1);
     }
 
     textarea {
       resize: vertical;
-      min-height: 120px;
+      min-height: 80px;
     }
 
     button {
       background: linear-gradient(135deg, #667eea, #764ba2);
+      color: white;
       border: none;
-      color: white;
-      padding: 1rem 2rem;
-      font-size: 1rem;
-      border-radius: 25px;
       cursor: pointer;
-      transition: all 0.3s ease;
       font-weight: 600;
-      letter-spacing: 0.5px;
-      box-shadow: 0 8px 20px rgba(102, 126, 234, 0.3);
-    }
-
-    button:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 12px 25px rgba(102, 126, 234, 0.4);
-      background: linear-gradient(135deg, #5a67d8, #6b46c1);
-    }
-
-    button:active {
-      transform: translateY(0);
-    }
-
-    .info {
-      text-align: center;
-      margin: 1rem 0;
-      padding: 1rem;
-      background: linear-gradient(135deg, #10b981, #34d399);
-      color: white;
-      border-radius: 10px;
-      font-weight: 600;
-      box-shadow: 0 5px 15px rgba(16, 185, 129, 0.3);
-    }
-
-    .divider {
-      height: 2px;
-      background: linear-gradient(90deg, transparent, #667eea, transparent);
-      margin: 2rem 0;
-      border-radius: 1px;
-    }
-
-    .comments-section h2 {
-      text-align: center;
-      margin-bottom: 2rem;
-      color: #4a5568;
-      font-size: 1.8rem;
-      font-weight: 300;
-    }
-
-    .comment {
-      margin-bottom: 1.5rem;
-      border-radius: 15px;
-      overflow: hidden;
-      box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
-      transition: all 0.3s ease;
-      backdrop-filter: blur(10px);
-      border: 1px solid rgba(255, 255, 255, 0.3);
-    }
-
-    .comment:hover {
-      transform: translateY(-3px);
-      box-shadow: 0 12px 30px rgba(0, 0, 0, 0.15);
-    }
-
-    /* Sentiment-based backgrounds */
-    .comment.positive {
-      background: linear-gradient(135deg, rgba(16, 185, 129, 0.1), rgba(52, 211, 153, 0.05));
-      border-left: 4px solid #10b981;
-    }
-
-    .comment.neutral {
-      background: linear-gradient(135deg, rgba(245, 158, 11, 0.1), rgba(251, 191, 36, 0.05));
-      border-left: 4px solid #f59e0b;
-    }
-
-    .comment.negative {
-      background: linear-gradient(135deg, rgba(239, 68, 68, 0.1), rgba(248, 113, 113, 0.05));
-      border-left: 4px solid #ef4444;
-    }
-
-    .comment.default {
-      background: linear-gradient(135deg, rgba(102, 126, 234, 0.05), rgba(118, 75, 162, 0.05));
-      border-left: 4px solid #667eea;
-    }
-
-    .comment-content {
-      padding: 1.5rem;
-    }
-
-    .comment-header {
-      font-weight: 700;
-      font-size: 1.1rem;
-      margin-bottom: 0.8rem;
-      color: #2d3748;
-    }
-
-    .comment-text {
-      font-size: 1rem;
-      line-height: 1.6;
-      color: #4a5568;
-      margin-bottom: 1rem;
-    }
-
-    .metadata {
-      padding: 0 1.5rem 1.5rem;
-    }
-
-    .summary, .sentiment, .keywords {
-      margin-bottom: 0.8rem;
-      padding: 0.8rem;
-      border-radius: 8px;
-      background: rgba(255, 255, 255, 0.6);
-      backdrop-filter: blur(5px);
-    }
-
-    .summary {
-      font-style: italic;
-      color: #6b7280;
-      border-left: 3px solid #8b5cf6;
-    }
-
-    .sentiment {
-      color: #374151;
-      font-weight: 600;
-      border-left: 3px solid #06b6d4;
-    }
-
-    .keywords {
-      border-left: 3px solid #f59e0b;
-    }
-
-    .keywords span {
-      display: inline-block;
-      background: linear-gradient(135deg, #667eea, #764ba2);
-      color: white;
-      padding: 0.3rem 0.8rem;
-      margin: 0.2rem 0.3rem 0.2rem 0;
-      border-radius: 15px;
-      font-size: 0.85rem;
-      font-weight: 600;
-      box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);
       transition: all 0.2s ease;
     }
 
-    .keywords span:hover {
+    button:hover {
       transform: translateY(-1px);
-      box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+      box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
     }
 
-    /* Responsive design */
+    .filters {
+      background: rgba(247, 250, 252, 0.8);
+      padding: 1rem;
+      border-radius: 8px;
+      margin-bottom: 1.5rem;
+      border-left: 3px solid #10b981;
+    }
+
+    .filter-group {
+      margin-bottom: 1rem;
+    }
+
+    .filter-group label {
+      display: block;
+      font-size: 0.8rem;
+      margin-bottom: 0.3rem;
+      color: #4a5568;
+      font-weight: 600;
+    }
+
+    .sentiment-filter {
+      display: flex;
+      gap: 0.5rem;
+      flex-wrap: wrap;
+    }
+
+    .sentiment-btn {
+      flex: 1;
+      padding: 0.4rem 0.6rem;
+      font-size: 0.8rem;
+      border-radius: 15px;
+      border: 1px solid #e2e8f0;
+      background: white;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .sentiment-btn.active {
+      color: white;
+      border-color: transparent;
+    }
+
+    .sentiment-btn.positive.active { background: #10b981; }
+    .sentiment-btn.negative.active { background: #ef4444; }
+    .sentiment-btn.neutral.active { background: #f59e0b; }
+    .sentiment-btn.all.active { background: #667eea; }
+
+    .analytics-section {
+      background: rgba(255, 255, 255, 0.95);
+      border-radius: 15px;
+      padding: 1.5rem;
+      margin-bottom: 1.5rem;
+      backdrop-filter: blur(10px);
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+    }
+
+    .analytics-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1.5rem;
+    }
+
+    .analytics-header h2 {
+      color: #2d3748;
+      font-size: 1.5rem;
+    }
+
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+      gap: 1rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .stat-card {
+      background: linear-gradient(135deg, rgba(102, 126, 234, 0.1), rgba(118, 75, 162, 0.05));
+      padding: 1rem;
+      border-radius: 8px;
+      text-align: center;
+      border-left: 3px solid #667eea;
+    }
+
+    .stat-number {
+      font-size: 1.8rem;
+      font-weight: 700;
+      color: #2d3748;
+    }
+
+    .stat-label {
+      font-size: 0.8rem;
+      color: #6b7280;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .comments-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 1rem;
+    }
+
+    .comment-card {
+      background: rgba(255, 255, 255, 0.95);
+      border-radius: 10px;
+      padding: 1rem;
+      backdrop-filter: blur(10px);
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+      transition: all 0.3s ease;
+      border-left: 4px solid #667eea;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .comment-card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+    }
+
+    .comment-card.positive { border-left-color: #10b981; }
+    .comment-card.negative { border-left-color: #ef4444; }
+    .comment-card.neutral { border-left-color: #f59e0b; }
+
+    .comment-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 0.8rem;
+    }
+
+    .comment-author {
+      font-weight: 700;
+      color: #2d3748;
+      font-size: 0.9rem;
+    }
+
+    .sentiment-badge {
+      padding: 0.2rem 0.6rem;
+      border-radius: 12px;
+      font-size: 0.7rem;
+      font-weight: 600;
+      text-transform: uppercase;
+    }
+
+    .sentiment-badge.positive { background: #d1fae5; color: #065f46; }
+    .sentiment-badge.negative { background: #fee2e2; color: #991b1b; }
+    .sentiment-badge.neutral { background: #fef3c7; color: #92400e; }
+
+    .comment-text {
+      font-size: 0.85rem;
+      line-height: 1.4;
+      color: #4a5568;
+      margin-bottom: 0.8rem;
+      display: -webkit-box;
+      -webkit-line-clamp: 3;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+
+    .comment-meta {
+      font-size: 0.7rem;
+      color: #6b7280;
+      border-top: 1px solid #e2e8f0;
+      padding-top: 0.5rem;
+    }
+
+    .keywords-mini {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.2rem;
+      margin-top: 0.3rem;
+    }
+
+    .keyword-tag {
+      background: #667eea;
+      color: white;
+      padding: 0.1rem 0.4rem;
+      border-radius: 8px;
+      font-size: 0.6rem;
+      font-weight: 600;
+    }
+
+    .info-badge {
+      background: linear-gradient(135deg, #10b981, #34d399);
+      color: white;
+      padding: 0.8rem;
+      border-radius: 8px;
+      text-align: center;
+      font-weight: 600;
+      margin-bottom: 1rem;
+    }
+
+    .search-box {
+      position: relative;
+      margin-bottom: 1rem;
+    }
+
+    .search-box input {
+      padding-left: 2.5rem;
+    }
+
+    .search-icon {
+      position: absolute;
+      left: 0.8rem;
+      top: 50%;
+      transform: translateY(-50%);
+      color: #6b7280;
+      font-size: 0.9rem;
+    }
+
+    /* Responsive */
+    @media (max-width: 1024px) {
+      .container {
+        grid-template-columns: 1fr;
+        grid-template-rows: auto 1fr;
+      }
+      
+      .sidebar {
+        padding: 1rem;
+      }
+      
+      .comments-grid {
+        grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+      }
+    }
+
     @media (max-width: 768px) {
-      body { padding: 1rem; }
-      .container { margin: 0; }
-      h1 { font-size: 2rem; }
-      .header, .content { padding: 1.5rem; }
+      .comments-grid {
+        grid-template-columns: 1fr;
+      }
+      
+      .stats-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
     }
 
-    /* Subtle animations */
+    /* Animations */
+    .comment-card {
+      animation: slideIn 0.3s ease forwards;
+    }
+
     @keyframes slideIn {
       from {
         opacity: 0;
-        transform: translateY(20px);
+        transform: translateY(10px);
       }
       to {
         opacity: 1;
@@ -272,128 +350,236 @@
       }
     }
 
-    .comment {
-      animation: slideIn 0.5s ease forwards;
-    }
-
-    /* Shimmer effect */
-    .shimmer {
-      position: relative;
-      overflow: hidden;
-    }
-
-    .shimmer::after {
-      content: '';
-      position: absolute;
-      top: 0;
-      left: -100%;
-      width: 100%;
-      height: 100%;
-      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
-      animation: shimmer 3s infinite;
-    }
-
-    @keyframes shimmer {
-      0% { left: -100%; }
-      100% { left: 100%; }
+    .hidden {
+      display: none;
     }
   </style>
-  <script>
-    // Add dynamic sentiment classes based on sentiment text
-    document.addEventListener('DOMContentLoaded', function() {
-      const comments = document.querySelectorAll('.comment');
-      comments.forEach(comment => {
-        const sentimentElement = comment.querySelector('.sentiment');
-        if (sentimentElement) {
-          const sentimentText = sentimentElement.textContent.toLowerCase();
-          if (sentimentText.includes('positif') || sentimentText.includes('positive')) {
-            comment.classList.add('positive');
-          } else if (sentimentText.includes('négatif') || sentimentText.includes('negative')) {
-            comment.classList.add('negative');
-          } else if (sentimentText.includes('neutre') || sentimentText.includes('neutral')) {
-            comment.classList.add('neutral');
-          } else {
-            comment.classList.add('default');
-          }
-        } else {
-          comment.classList.add('default');
-        }
-      });
-    });
-  </script>
 </head>
 <body>
   <div class="container">
-    <div class="header shimmer">
-      <h1>Livre d'or</h1>
+    <!-- Sidebar -->
+    <div class="sidebar">
+      <div class="logo">📚 Livre d'or</div>
+      
+      <!-- Steam Form -->
+      <div class="form-section">
+        <h3>Steam Reviews</h3>
+        <form method="post" action="/">
+          <input type="text" id="app_id" name="app_id" placeholder="Steam App ID (ex: 729040)" required value="{{ app_id }}" />
+          <input type="number" id="num_per_page" name="num_per_page" min="1" max="100" value="{{ num_per_page }}" placeholder="Nombre (max 100)" />
+          <button type="submit">🔄 Récupérer</button>
+        </form>
+      </div>
+
+      <!-- Manual Comment Form -->
+      <div class="form-section">
+        <h3>Nouveau commentaire</h3>
+        <form action="/add_comment" method="post">
+          <input type="text" name="name" placeholder="Votre nom" required />
+          <textarea name="comment" placeholder="Votre message" required></textarea>
+          <button type="submit">📝 Envoyer</button>
+        </form>
+      </div>
+
+      <!-- Filters -->
+      <div class="filters">
+        <h3>🔍 Filtres</h3>
+        
+        <div class="search-box">
+          <span class="search-icon">🔍</span>
+          <input type="text" id="searchInput" placeholder="Rechercher..." />
+        </div>
+        
+        <div class="filter-group">
+          <label>Sentiment:</label>
+          <div class="sentiment-filter">
+            <button type="button" class="sentiment-btn all active" data-sentiment="all">Tous</button>
+            <button type="button" class="sentiment-btn positive" data-sentiment="positive">+</button>
+            <button type="button" class="sentiment-btn neutral" data-sentiment="neutral">~</button>
+            <button type="button" class="sentiment-btn negative" data-sentiment="negative">-</button>
+          </div>
+        </div>
+
+        <div class="filter-group">
+          <label>Trier par:</label>
+          <select id="sortSelect">
+            <option value="recent">Plus récents</option>
+            <option value="author">Auteur (A-Z)</option>
+            <option value="sentiment">Sentiment</option>
+            <option value="length">Longueur</option>
+          </select>
+        </div>
+      </div>
     </div>
 
-    <div class="content">
-      <div class="form-container">
-        <form method="post" action="/">
-          <label for="app_id">Steam App ID :</label>
-          <input type="text" id="app_id" name="app_id" placeholder="Exemple : 729040" required value="{{ app_id }}" />
-          
-          <label for="num_per_page">Nombre de reviews à récupérer :</label>
-          <input type="number" id="num_per_page" name="num_per_page" min="1" max="100" value="{{ num_per_page }}" />
-          
-          <button type="submit">Récupérer les reviews Steam</button>
-        </form>
-      </div>
-
+    <!-- Main Content -->
+    <div class="main-content">
       {% if new_count is not none %}
-        <div class="info">Nombre de nouveaux commentaires ajoutés : {{ new_count }}</div>
+        <div class="info-badge">✅ {{ new_count }} nouveaux commentaires ajoutés</div>
       {% endif %}
 
-      <div class="divider"></div>
-
-      <div class="form-container">
-        <form action="/add_comment" method="post">
-          <label for="name">Votre nom :</label>
-          <input type="text" id="name" name="name" placeholder="Votre nom" required />
-          
-          <label for="comment">Votre message :</label>
-          <textarea id="comment" name="comment" placeholder="Votre message" required></textarea>
-          
-          <button type="submit">Envoyer</button>
-        </form>
+      <!-- Analytics Dashboard -->
+      <div class="analytics-section">
+        <div class="analytics-header">
+          <h2>📊 Analytics Dashboard</h2>
+          <span id="commentCount">{{ comments|length }} commentaires</span>
+        </div>
+        
+        <div class="stats-grid">
+          <div class="stat-card">
+            <div class="stat-number" id="totalComments">{{ comments|length }}</div>
+            <div class="stat-label">Total</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-number" id="positiveCount">0</div>
+            <div class="stat-label">Positifs</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-number" id="neutralCount">0</div>
+            <div class="stat-label">Neutres</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-number" id="negativeCount">0</div>
+            <div class="stat-label">Négatifs</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-number" id="avgLength">0</div>
+            <div class="stat-label">Mots moy.</div>
+          </div>
+        </div>
       </div>
 
-      <div class="divider"></div>
-      
-      <div class="comments-section">
-        <h2>Commentaires</h2>
-
-        <div class="comments-list">
-          {% for comment in comments %}
-            <div class="comment">
-              <div class="comment-content">
-                <div class="comment-header">{{ comment[1] }}</div>
-                <div class="comment-text">{{ comment[2] }}</div>
-              </div>
-              
-              {% if comment[3] or comment[4] or comment[5] %}
-                <div class="metadata">
-                  {% if comment[3] %}
-                    <div class="summary">Résumé : {{ comment[3] }}</div>
-                  {% endif %}
-                  {% if comment[4] %}
-                    <div class="sentiment">Sentiment : {{ comment[4] }}</div>
-                  {% endif %}
-                  {% if comment[5] %}
-                    <div class="keywords">Mots clés :
-                      {% for mot in comment[5] %}
-                        <span>{{ mot }}</span>
-                      {% endfor %}
-                    </div>
+      <!-- Comments Grid -->
+      <div class="comments-grid" id="commentsGrid">
+        {% for comment in comments %}
+          <div class="comment-card" data-sentiment="{{ comment[4]|lower if comment[4] else 'default' }}" data-author="{{ comment[1]|lower }}" data-text="{{ comment[2]|lower }}">
+            <div class="comment-header">
+              <div class="comment-author">{{ comment[1] }}</div>
+              {% if comment[4] %}
+                <div class="sentiment-badge {{ 'positive' if 'positif' in comment[4]|lower else 'negative' if 'négatif' in comment[4]|lower else 'neutral' }}">
+                  {{ '😊' if 'positif' in comment[4]|lower else '😔' if 'négatif' in comment[4]|lower else '😐' }}
+                </div>
+              {% endif %}
+            </div>
+            
+            <div class="comment-text">{{ comment[2] }}</div>
+            
+            <div class="comment-meta">
+              {% if comment[3] %}
+                <div><strong>Résumé:</strong> {{ comment[3][:60] }}{{ '...' if comment[3]|length > 60 else '' }}</div>
+              {% endif %}
+              {% if comment[5] %}
+                <div class="keywords-mini">
+                  {% for mot in comment[5][:3] %}
+                    <span class="keyword-tag">{{ mot }}</span>
+                  {% endfor %}
+                  {% if comment[5]|length > 3 %}
+                    <span class="keyword-tag">+{{ comment[5]|length - 3 }}</span>
                   {% endif %}
                 </div>
               {% endif %}
             </div>
-          {% endfor %}
-        </div>
+          </div>
+        {% endfor %}
       </div>
     </div>
   </div>
+
+  <script>
+    // Analytics and filtering functionality
+    document.addEventListener('DOMContentLoaded', function() {
+      const comments = document.querySelectorAll('.comment-card');
+      const sentimentButtons = document.querySelectorAll('.sentiment-btn');
+      const searchInput = document.getElementById('searchInput');
+      const sortSelect = document.getElementById('sortSelect');
+      
+      // Calculate analytics
+      function updateAnalytics() {
+        const visibleComments = Array.from(comments).filter(c => !c.classList.contains('hidden'));
+        const sentimentCounts = { positive: 0, neutral: 0, negative: 0 };
+        let totalWords = 0;
+        
+        visibleComments.forEach(comment => {
+          const sentiment = comment.dataset.sentiment;
+          const text = comment.dataset.text;
+          totalWords += text.split(' ').length;
+          
+          if (sentiment.includes('positif')) sentimentCounts.positive++;
+          else if (sentiment.includes('négatif')) sentimentCounts.negative++;
+          else if (sentiment.includes('neutre')) sentimentCounts.neutral++;
+        });
+        
+        document.getElementById('totalComments').textContent = visibleComments.length;
+        document.getElementById('positiveCount').textContent = sentimentCounts.positive;
+        document.getElementById('neutralCount').textContent = sentimentCounts.neutral;
+        document.getElementById('negativeCount').textContent = sentimentCounts.negative;
+        document.getElementById('avgLength').textContent = Math.round(totalWords / visibleComments.length) || 0;
+        document.getElementById('commentCount').textContent = `${visibleComments.length} commentaires`;
+      }
+      
+      // Filter functions
+      function filterComments() {
+        const searchTerm = searchInput.value.toLowerCase();
+        const activeSentiment = document.querySelector('.sentiment-btn.active').dataset.sentiment;
+        
+        comments.forEach(comment => {
+          const text = comment.dataset.text;
+          const author = comment.dataset.author;
+          const sentiment = comment.dataset.sentiment;
+          
+          const matchesSearch = text.includes(searchTerm) || author.includes(searchTerm);
+          const matchesSentiment = activeSentiment === 'all' || 
+            (activeSentiment === 'positive' && sentiment.includes('positif')) ||
+            (activeSentiment === 'negative' && sentiment.includes('négatif')) ||
+            (activeSentiment === 'neutral' && sentiment.includes('neutre'));
+          
+          if (matchesSearch && matchesSentiment) {
+            comment.classList.remove('hidden');
+          } else {
+            comment.classList.add('hidden');
+          }
+        });
+        
+        updateAnalytics();
+      }
+      
+      // Sort function
+      function sortComments() {
+        const grid = document.getElementById('commentsGrid');
+        const sortBy = sortSelect.value;
+        const commentsArray = Array.from(comments);
+        
+        commentsArray.sort((a, b) => {
+          switch(sortBy) {
+            case 'author':
+              return a.dataset.author.localeCompare(b.dataset.author);
+            case 'sentiment':
+              return a.dataset.sentiment.localeCompare(b.dataset.sentiment);
+            case 'length':
+              return b.dataset.text.length - a.dataset.text.length;
+            default:
+              return 0; // Keep original order for 'recent'
+          }
+        });
+        
+        commentsArray.forEach(comment => grid.appendChild(comment));
+      }
+      
+      // Event listeners
+      sentimentButtons.forEach(btn => {
+        btn.addEventListener('click', () => {
+          sentimentButtons.forEach(b => b.classList.remove('active'));
+          btn.classList.add('active');
+          filterComments();
+        });
+      });
+      
+      searchInput.addEventListener('input', filterComments);
+      sortSelect.addEventListener('change', sortComments);
+      
+      // Initialize
+      updateAnalytics();
+    });
+  </script>
 </body>
 </html>
