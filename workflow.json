@@ -20,57 +20,87 @@
     },
     {
       "parameters": {
-        "jsCode": "const output = [];\n\nfor (const item of $input.all()) {\n  const comment = item.json.comment;\n  \n  // Si pas de commentaire ou vide, on skip\n  if (!comment || comment.trim() === \"\") {\n    // On ignore cet item sans générer d’erreur\n    continue;\n  }\n  \n  const prompt = `Analyse ce commentaire et determine si il est positif, neutre ou négatif : \"${comment}\". Réponds uniquement avec un JSON valide de la forme {\"sentiment\": \"positif|neutre|négatif\", \"resume\": \"<résumé en moins de 15 mots>\"}.`;\n  \n  output.push({\n    json: {\n      ...item.json,\n      prompt,\n    },\n    pairedItem: { item: $input.indexOf(item) },\n  });\n}\n\nreturn output;"
-      },
-      "type": "n8n-nodes-base.code",
-      "typeVersion": 2,
-      "position": [
-        192,
-        -240
-      ],
-      "id": "042608fb-e80e-406a-9082-281d50910b03",
-      "name": "Code"
-    },
-    {
-      "parameters": {
         "method": "POST",
         "url": "http://ollama:11434/api/generate",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
         "sendBody": true,
         "specifyBody": "json",
-        "jsonBody": "{\n  \"model\": \"phi3\",\n  \"prompt\": \"{{$json[\\\"prompt\\\"]}}\",\n  \"max_tokens\": 1000,\n  \"temperature\": 0,\n  \"stream\": false\n}",
+        "jsonBody": "={\n  \"model\": \"phi3\",\n  \"prompt\": \"Voici un commentaire utilisateur : \\\"{{ $json.body.comment }}\\\"\\n\\n1) Résume en une phrase max 15 mots.\\n2) Analyse le sentiment : positif, neutre, négatif.\\n3) Dégage les mots clés principaux.\\nRéponds uniquement par un JSON strict, sans guillemets triples ni texte superflu, exactement comme ça : {\\\"id\\\": \\\"{{ $json.body.id }}\\\", \\\"résumé\\\": \\\"...\\\", \\\"sentiment\\\": \\\"...\\\", \\\"mots_clés\\\": [\\\"...\\\", \\\"...\\\"]}.\\nAttention : utilise les bons noms de clés, aucune faute de frappe.\",\n  \"stream\": false\n}",
         "options": {}
       },
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
       "position": [
-        464,
-        -240
+        -160,
+        -112
       ],
-      "id": "1edf40c7-9ec9-4a3b-b81a-78774335aa75",
+      "id": "322c0205-2958-4a4a-8483-52c7228e45ba",
+      "name": "HTTP Request1"
+    },
+    {
+      "parameters": {
+        "method": "PUT",
+        "url": "=http://web:5000/comments/{{ $json.id }}",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"résumé\": \"{{ $json.résumé }}\",\n  \"sentiment\": \"{{ $json.sentiment }}\",\n  \"mots_clés\": {{ JSON.stringify($json.mots_clés) }}\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        752,
+        80
+      ],
+      "id": "dcae1d2b-4918-4bed-aa27-2e8050ec7976",
       "name": "HTTP Request"
     },
     {
       "parameters": {
-        "assignments": {
-          "assignments": [
-            {
-              "id": "5e412899-2ce1-46f6-9055-872072a13a93",
-              "name": "test",
-              "value": "hook recu",
-              "type": "string"
-            }
-          ]
-        },
-        "options": {}
+        "jsCode": "return $input.all().map(item => {\n  let raw = item.json.response;\n\n  // Supprime balises markdown, backticks, espaces inutiles\n  raw = raw.replace(/```json|```/g, '').trim();\n\n  // Fonction pour extraire un JSON valide basé sur les accolades équilibrées\n  function extractJSON(str) {\n    let depth = 0;\n    let start = -1;\n    for (let i = 0; i < str.length; i++) {\n      if (str[i] === '{') {\n        if (depth === 0) start = i;\n        depth++;\n      } else if (str[i] === '}') {\n        depth--;\n        if (depth === 0 && start !== -1) {\n          return str.substring(start, i + 1);\n        }\n      }\n    }\n    return null; // Pas trouvé\n  }\n\n  const jsonString = extractJSON(raw);\n  if (!jsonString) {\n    return { json: { error: 'Pas de JSON valide détecté', raw } };\n  }\n\n  // Tenter de parser directement\n  try {\n    const parsed = JSON.parse(jsonString);\n    return { json: parsed };\n  } catch (err) {\n    // Si erreur, essayer un nettoyage basique : échappement des guillemets intérieurs\n    let cleaned = jsonString\n      .replace(/\\r?\\n/g, '\\\\n') // échappe les retours à la ligne\n      .replace(/(?<!\\\\)\"/g, '\\\\\"'); // échappe guillemets non échappés\n\n    // Retirer les guillemets échappés en trop autour des clés et valeurs\n    // (c’est délicat, on peut essayer un replace simple mais ça peut casser le JSON)\n\n    try {\n      // On essaie de reparser le nettoyage (probablement échoué si la chaîne n'était pas un JSON pur)\n      const reparsed = JSON.parse(cleaned);\n      return { json: reparsed };\n    } catch (error2) {\n      // On renvoie l'erreur avec la chaîne problématique pour debug\n      return { json: { error: 'Erreur parsing JSON après nettoyage', message: error2.message, raw: cleaned } };\n    }\n  }\n});\n"
       },
-      "type": "n8n-nodes-base.set",
-      "typeVersion": 3.4,
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
       "position": [
-        -736,
-        -192
+        320,
+        -64
       ],
-      "id": "c4f6451d-0213-4515-81f7-edec928ad536",
-      "name": "Edit Fields"
+      "id": "8dd1f534-fa38-4c93-9d94-47a34e1aba27",
+      "name": "Code"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        368,
+        272
+      ],
+      "typeVersion": 1,
+      "id": "4add2db2-963d-46d4-9598-c4d5c4a668cc",
+      "name": "Sticky Note"
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "const comment = $json.body.comment;\nconst id = $json.body.id;\n\nreturn {\n  json: {\n    model: \"phi3\",\n    stream: false,\n    prompt:\n      `Tu es un assistant de traitement de commentaires clients.\\n` +\n      `Analyse uniquement ce commentaire : \"${comment}\".\\n\\n` +\n      `Réponds strictement dans ce format JSON exact, valide et sans erreur : ` +\n      `{\"id\": \"${id}\", \"résumé\": \"...\", \"sentiment\": \"...\", \"mots_clés\": [\"...\", \"...\"]}\\n\\n` +\n      `Contraintes :\\n` +\n      `- Le résumé doit faire maximum 15 mots, en français clair.\\n` +\n      `- Le sentiment doit être obligatoirement \"positif\", \"neutre\" ou \"négatif\".\\n` +\n      `- Les mots clés doivent être extraits du commentaire, en français, pertinents et en lien direct avec le contenu.\\n` +\n      `- Toutes les clés doivent être entre guillemets doubles.\\n` +\n      `- Aucune autre clé ou donnée ne doit être ajoutée.\\n` +\n      `- Ne réponds jamais avec du texte hors JSON, ni avec des balises markdown, ni guillemets triples.\\n` +\n      `- Ne mélange aucune autre langue ou alphabet, que le français standard.\\n` +\n      `- Si tu ne peux pas respecter ces règles, réponds avec ce JSON vide : ` +\n      `{\"id\": \"${id}\", \"résumé\": \"\", \"sentiment\": \"neutre\", \"mots_clés\": []}.\\n\\n` +\n      `Réponds uniquement avec ce JSON strict, rien d’autre.`\n  }\n};"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -80,
+        272
+      ],
+      "id": "39b92111-e1a5-4f4b-90f0-a1942f2398b7",
+      "name": "Code1",
+      "executeOnce": false
     },
     {
       "parameters": {
@@ -87,116 +117,35 @@
         },
         "sendBody": true,
         "specifyBody": "json",
-        "jsonBody": "={\n  \"model\": \"phi3\",\n  \"prompt\": \"Voici un commentaire d'utilisateur : \\\"{{ $json.body.comment }}\\\"\\n\\n1) Résume ce commentaire en une phrase.\\n2) Analyse le sentiment : positif, neutre, ou négatif.\\nRéponds uniquement en JSON : {\\\\\\\"résumé\\\\\\\": \\\\\\\"...\\\\\\\", \\\\\\\"sentiment\\\\\\\": \\\\\\\"...\\\\\\\"}.\",\n  \"stream\": false\n}\n",
+        "jsonBody": "={{ $json }}",
         "options": {}
       },
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
       "position": [
-        -64,
-        64
+        160,
+        112
       ],
-      "id": "322c0205-2958-4a4a-8483-52c7228e45ba",
-      "name": "HTTP Request1"
-    },
-    {
-      "parameters": {
-        "assignments": {
-          "assignments": [
-            {
-              "id": "96c0e7d4-48da-4a62-bc82-3b66f8ac88ac",
-              "name": "jsonBody",
-              "value": "{   model: \"phi3\",   prompt: \"Voici un commentaire d'utilisateur : \\\"\" + $json[\"comment\"] + \"\\\"\\n\\n1) Résume ce commentaire en une phrase.\\n2) Analyse le sentiment : positif, neutre, ou négatif.\\nRéponds uniquement en JSON : {\\\"résumé\\\": \\\"...\\\", \\\"sentiment\\\": \\\"...\\\"}.\" }",
-              "type": "string"
-            }
-          ]
-        },
-        "options": {}
-      },
-      "type": "n8n-nodes-base.set",
-      "typeVersion": 3.4,
-      "position": [
-        -400,
-        -144
-      ],
-      "id": "e5aafddd-2d82-4526-902d-9f92b4232604",
-      "name": "Edit Fields1"
-    },
-    {
-      "parameters": {
-        "method": "POST",
-        "url": "http://ollama:11434/api/generate",
-        "sendBody": true,
-        "specifyBody": "json",
-        "jsonBody": "={\n  \"model\": \"phi3\",\n  \"prompt\": \"Voici un commentaire d'utilisateur : \\\"{{$json.comment}}\\\"\\n\\n1) Résume ce commentaire en une phrase.\\n2) Analyse le sentiment : positif, neutre, ou négatif.\\nRéponds uniquement en JSON : {\\\"résumé\\\": \\\"...\\\", \\\"sentiment\\\": \\\"...\\\"}.\",\n  \"stream\": false\n}",
-        "options": {}
-      },
-      "type": "n8n-nodes-base.httpRequest",
-      "typeVersion": 4.2,
-      "position": [
-        -592,
-        -224
-      ],
-      "id": "d0c6c338-a616-464b-a93a-bcb3734c7951",
+      "id": "e6159fe4-c030-4778-8658-032aaf918b23",
       "name": "HTTP Request2"
-    },
-    {
-      "parameters": {
-        "assignments": {
-          "assignments": [
-            {
-              "id": "aee62928-eb66-4fc5-91e8-904c0f9b9069",
-              "name": "name",
-              "value": "={{$json[\"body\"][\"comment\"]}}",
-              "type": "string"
-            },
-            {
-              "id": "b386f1cf-7233-4763-a442-8dc1d63f259a",
-              "name": "comment",
-              "value": "={{$json[\"body\"][\"comment\"]}}",
-              "type": "string"
-            }
-          ]
-        },
-        "includeOtherFields": "={{ false }}",
-        "options": {}
-      },
-      "type": "n8n-nodes-base.set",
-      "typeVersion": 3.4,
-      "position": [
-        -128,
-        -96
-      ],
-      "id": "2348447b-7ba4-46a6-a267-3ccde390fb2d",
-      "name": "Edit Fields2"
     }
   ],
-  "pinData": {
-    "HTTP Request": [
-      {
-        "json": {
-          "name": "First item",
-          "code": 1
-        }
-      },
-      {
-        "json": {
-          "name": "Second item",
-          "code": 2
-        }
-      }
-    ]
-  },
+  "pinData": {},
   "connections": {
     "Webhook": {
       "main": [
         [
           {
-            "node": "HTTP Request1",
+            "node": "Code1",
             "type": "main",
             "index": 0
           }
         ]
+      ]
+    },
+    "HTTP Request1": {
+      "main": [
+        []
       ]
     },
     "Code": {
@@ -210,24 +159,26 @@
         ]
       ]
     },
-    "HTTP Request": {
+    "Code1": {
       "main": [
-        []
+        [
+          {
+            "node": "HTTP Request2",
+            "type": "main",
+            "index": 0
+          }
+        ]
       ]
     },
-    "Edit Fields1": {
+    "HTTP Request2": {
       "main": [
-        []
-      ]
-    },
-    "HTTP Request1": {
-      "main": [
-        []
-      ]
-    },
-    "Edit Fields": {
-      "main": [
-        []
+        [
+          {
+            "node": "Code",
+            "type": "main",
+            "index": 0
+          }
+        ]
       ]
     }
   },
@@ -235,7 +186,7 @@
   "settings": {
     "executionOrder": "v1"
   },
-  "versionId": "fed4d6c5-877d-4c5c-be40-46e454e523b1",
+  "versionId": "6dc44bfa-059a-4f8a-be1b-cbfdbe1017e9",
   "meta": {
     "templateCredsSetupCompleted": true,
     "instanceId": "93d825bc7c4da3815821a6487db505d2e6edab50f4ef01e2c9937f92cbff7f1f"
