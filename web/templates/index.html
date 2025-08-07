@@ -18,10 +18,8 @@
     }
 
     .container {
-      display: grid;
-      grid-template-columns: 300px 1fr;
+      display: flex;
       min-height: 100vh;
-      gap: 0;
     }
 
     .sidebar {
@@ -30,11 +28,20 @@
       padding: 1.5rem;
       box-shadow: 2px 0 20px rgba(0, 0, 0, 0.1);
       overflow-y: auto;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 300px;
+      height: 100vh;
+      flex-shrink: 0;
     }
 
     .main-content {
       padding: 1.5rem;
       overflow-y: auto;
+      margin-left: 300px;
+      min-height: 100vh;
+      flex: 1;
     }
 
     .logo {
@@ -145,6 +152,49 @@
     .sentiment-btn.neutral.active { background: #f59e0b; }
     .sentiment-btn.all.active { background: #667eea; }
 
+    .toggle-filter {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      margin-bottom: 1rem;
+    }
+
+    .toggle-switch {
+      position: relative;
+      width: 44px;
+      height: 24px;
+      background-color: #e2e8f0;
+      border-radius: 12px;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+    }
+
+    .toggle-switch.active {
+      background-color: #667eea;
+    }
+
+    .toggle-knob {
+      position: absolute;
+      top: 2px;
+      left: 2px;
+      width: 20px;
+      height: 20px;
+      background-color: white;
+      border-radius: 50%;
+      transition: transform 0.3s ease;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    }
+
+    .toggle-switch.active .toggle-knob {
+      transform: translateX(20px);
+    }
+
+    .toggle-label {
+      font-size: 0.8rem;
+      color: #4a5568;
+      cursor: pointer;
+    }
+
     .analytics-section {
       background: rgba(255, 255, 255, 0.95);
       border-radius: 15px;
@@ -194,22 +244,39 @@
       letter-spacing: 0.5px;
     }
 
+    .comments-section {
+      background: rgba(255, 255, 255, 0.95);
+      border-radius: 15px;
+      padding: 1.5rem;
+      backdrop-filter: blur(10px);
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+      min-height: 600px;
+    }
+
+    .comments-section h2 {
+      color: #2d3748;
+      font-size: 1.5rem;
+      margin-bottom: 1.5rem;
+      text-align: center;
+    }
+
     .comments-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-      gap: 1rem;
+      grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+      gap: 1.5rem;
     }
 
     .comment-card {
       background: rgba(255, 255, 255, 0.95);
       border-radius: 10px;
-      padding: 1rem;
+      padding: 1.5rem;
       backdrop-filter: blur(10px);
       box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
       transition: all 0.3s ease;
       border-left: 4px solid #667eea;
       position: relative;
       overflow: hidden;
+      min-height: 200px;
     }
 
     .comment-card:hover {
@@ -220,24 +287,40 @@
     .comment-card.positive { border-left-color: #10b981; }
     .comment-card.negative { border-left-color: #ef4444; }
     .comment-card.neutral { border-left-color: #f59e0b; }
+    .comment-card.incomplete { 
+      border-left-color: #9ca3af; 
+      opacity: 0.7;
+    }
+
+    .incomplete-badge {
+      position: absolute;
+      top: 0.5rem;
+      right: 0.5rem;
+      background: #6b7280;
+      color: white;
+      padding: 0.2rem 0.5rem;
+      border-radius: 10px;
+      font-size: 0.6rem;
+      font-weight: 600;
+    }
 
     .comment-header {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      margin-bottom: 0.8rem;
+      margin-bottom: 1rem;
     }
 
     .comment-author {
       font-weight: 700;
       color: #2d3748;
-      font-size: 0.9rem;
+      font-size: 1rem;
     }
 
     .sentiment-badge {
-      padding: 0.2rem 0.6rem;
+      padding: 0.3rem 0.8rem;
       border-radius: 12px;
-      font-size: 0.7rem;
+      font-size: 0.75rem;
       font-weight: 600;
       text-transform: uppercase;
     }
@@ -247,36 +330,70 @@
     .sentiment-badge.neutral { background: #fef3c7; color: #92400e; }
 
     .comment-text {
-      font-size: 0.85rem;
-      line-height: 1.4;
+      font-size: 0.9rem;
+      line-height: 1.6;
       color: #4a5568;
-      margin-bottom: 0.8rem;
+      margin-bottom: 1rem;
+    }
+
+    .comment-text.truncated {
       display: -webkit-box;
-      -webkit-line-clamp: 3;
+      -webkit-line-clamp: 4;
       -webkit-box-orient: vertical;
       overflow: hidden;
     }
 
+    .expand-btn {
+      background: none;
+      border: none;
+      color: #667eea;
+      font-size: 0.8rem;
+      cursor: pointer;
+      padding: 0.3rem 0;
+      margin: 0;
+      width: auto;
+      text-decoration: underline;
+      font-weight: 600;
+    }
+
+    .expand-btn:hover {
+      color: #5a67d8;
+      transform: none;
+      box-shadow: none;
+    }
+
     .comment-meta {
-      font-size: 0.7rem;
+      font-size: 0.75rem;
       color: #6b7280;
       border-top: 1px solid #e2e8f0;
-      padding-top: 0.5rem;
+      padding-top: 0.8rem;
+    }
+
+    .comment-meta.expanded {
+      margin-top: 0.8rem;
+    }
+
+    .meta-item {
+      margin-bottom: 0.6rem;
+    }
+
+    .meta-item:last-child {
+      margin-bottom: 0;
     }
 
     .keywords-mini {
       display: flex;
       flex-wrap: wrap;
-      gap: 0.2rem;
-      margin-top: 0.3rem;
+      gap: 0.3rem;
+      margin-top: 0.5rem;
     }
 
     .keyword-tag {
       background: #667eea;
       color: white;
-      padding: 0.1rem 0.4rem;
-      border-radius: 8px;
-      font-size: 0.6rem;
+      padding: 0.2rem 0.6rem;
+      border-radius: 10px;
+      font-size: 0.65rem;
       font-weight: 600;
     }
 
@@ -288,6 +405,32 @@
       text-align: center;
       font-weight: 600;
       margin-bottom: 1rem;
+    }
+
+    .no-comments {
+      background: rgba(255, 255, 255, 0.95);
+      border-radius: 15px;
+      padding: 3rem;
+      text-align: center;
+      backdrop-filter: blur(10px);
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+      min-height: 400px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .no-comments h3 {
+      color: #4a5568;
+      margin-bottom: 1rem;
+      font-size: 1.5rem;
+    }
+
+    .no-comments p {
+      color: #6b7280;
+      font-size: 1rem;
+      max-width: 400px;
     }
 
     .search-box {
@@ -311,12 +454,18 @@
     /* Responsive */
     @media (max-width: 1024px) {
       .container {
-        grid-template-columns: 1fr;
-        grid-template-rows: auto 1fr;
+        flex-direction: column;
       }
       
       .sidebar {
+        position: relative;
+        width: 100%;
+        height: auto;
         padding: 1rem;
+      }
+      
+      .main-content {
+        margin-left: 0;
       }
       
       .comments-grid {
@@ -400,6 +549,13 @@
           </div>
         </div>
 
+        <div class="toggle-filter">
+          <div class="toggle-switch" id="hideIncompleteToggle">
+            <div class="toggle-knob"></div>
+          </div>
+          <span class="toggle-label">Masquer analyses incomplètes</span>
+        </div>
+
         <div class="filter-group">
           <label>Trier par:</label>
           <select id="sortSelect">
@@ -443,6 +599,10 @@
             <div class="stat-label">Négatifs</div>
           </div>
           <div class="stat-card">
+            <div class="stat-number" id="incompleteCount">0</div>
+            <div class="stat-label">Incomplets</div>
+          </div>
+          <div class="stat-card">
             <div class="stat-number" id="avgLength">0</div>
             <div class="stat-label">Mots moy.</div>
           </div>
@@ -450,37 +610,61 @@
       </div>
 
       <!-- Comments Grid -->
-      <div class="comments-grid" id="commentsGrid">
-        {% for comment in comments %}
-          <div class="comment-card" data-sentiment="{{ comment[4]|lower if comment[4] else 'default' }}" data-author="{{ comment[1]|lower }}" data-text="{{ comment[2]|lower }}">
-            <div class="comment-header">
-              <div class="comment-author">{{ comment[1] }}</div>
-              {% if comment[4] %}
-                <div class="sentiment-badge {{ 'positive' if 'positif' in comment[4]|lower else 'negative' if 'négatif' in comment[4]|lower else 'neutral' }}">
-                  {{ '😊' if 'positif' in comment[4]|lower else '😔' if 'négatif' in comment[4]|lower else '😐' }}
-                </div>
-              {% endif %}
-            </div>
-            
-            <div class="comment-text">{{ comment[2] }}</div>
-            
-            <div class="comment-meta">
-              {% if comment[3] %}
-                <div><strong>Résumé:</strong> {{ comment[3][:60] }}{{ '...' if comment[3]|length > 60 else '' }}</div>
-              {% endif %}
-              {% if comment[5] %}
-                <div class="keywords-mini">
-                  {% for mot in comment[5][:3] %}
-                    <span class="keyword-tag">{{ mot }}</span>
-                  {% endfor %}
-                  {% if comment[5]|length > 3 %}
-                    <span class="keyword-tag">+{{ comment[5]|length - 3 }}</span>
+      <div class="comments-section">
+        <h2>📝 Commentaires</h2>
+        <div class="comments-grid" id="commentsGrid">
+          {% if comments %}
+            {% for comment in comments %}
+              {% set is_incomplete = (comment[3] is none or comment[3] == '') and (comment[4] is none or comment[4] == '') %}
+              <div class="comment-card {{ 'incomplete' if is_incomplete else '' }}" 
+                   data-sentiment="{{ comment[4]|lower if comment[4] else 'none' }}" 
+                   data-author="{{ comment[1]|lower }}" 
+                   data-text="{{ comment[2]|lower }}"
+                   data-incomplete="{{ 'true' if is_incomplete else 'false' }}">
+                
+                {% if is_incomplete %}
+                  <div class="incomplete-badge">Analyse manquante</div>
+                {% endif %}
+                
+                <div class="comment-header">
+                  <div class="comment-author">{{ comment[1] }}</div>
+                  {% if comment[4] and comment[4] != '' %}
+                    <div class="sentiment-badge {{ 'positive' if 'positif' in comment[4]|lower else 'negative' if 'négatif' in comment[4]|lower else 'neutral' }}">
+                      {{ '😊' if 'positif' in comment[4]|lower else '😔' if 'négatif' in comment[4]|lower else '😐' }}
+                    </div>
                   {% endif %}
                 </div>
-              {% endif %}
+                
+                <div class="comment-text truncated" data-full-text="{{ comment[2] }}">{{ comment[2] }}</div>
+                {% if comment[2]|length > 150 %}
+                  <button class="expand-btn" onclick="toggleExpand(this)">Lire plus</button>
+                {% endif %}
+                
+                {% if comment[3] or comment[4] or comment[5] %}
+                  <div class="comment-meta">
+                    {% if comment[3] and comment[3] != '' %}
+                      <div class="meta-item"><strong>Résumé:</strong> {{ comment[3] }}</div>
+                    {% endif %}
+                    {% if comment[5] and comment[5]|length > 0 %}
+                      <div class="meta-item">
+                        <div class="keywords-mini">
+                          {% for mot in comment[5] %}
+                            <span class="keyword-tag">{{ mot }}</span>
+                          {% endfor %}
+                        </div>
+                      </div>
+                    {% endif %}
+                  </div>
+                {% endif %}
+              </div>
+            {% endfor %}
+          {% else %}
+            <div class="no-comments">
+              <h3>🎯 Aucun commentaire pour le moment</h3>
+              <p>Utilisez le formulaire Steam Reviews pour récupérer des avis ou ajoutez un commentaire manuel pour commencer l'analyse.</p>
             </div>
-          </div>
-        {% endfor %}
+          {% endif %}
+        </div>
       </div>
     </div>
   </div>
@@ -492,27 +676,45 @@
       const sentimentButtons = document.querySelectorAll('.sentiment-btn');
       const searchInput = document.getElementById('searchInput');
       const sortSelect = document.getElementById('sortSelect');
+      const hideIncompleteToggle = document.getElementById('hideIncompleteToggle');
+      let hideIncomplete = false;
+      
+      // Toggle functionality
+      hideIncompleteToggle.addEventListener('click', function() {
+        hideIncomplete = !hideIncomplete;
+        this.classList.toggle('active');
+        filterComments();
+      });
       
       // Calculate analytics
       function updateAnalytics() {
         const visibleComments = Array.from(comments).filter(c => !c.classList.contains('hidden'));
-        const sentimentCounts = { positive: 0, neutral: 0, negative: 0 };
+        const sentimentCounts = { positive: 0, neutral: 0, negative: 0, incomplete: 0 };
         let totalWords = 0;
         
         visibleComments.forEach(comment => {
           const sentiment = comment.dataset.sentiment;
           const text = comment.dataset.text;
+          const isIncomplete = comment.dataset.incomplete === 'true';
+          
           totalWords += text.split(' ').length;
           
-          if (sentiment.includes('positif')) sentimentCounts.positive++;
-          else if (sentiment.includes('négatif')) sentimentCounts.negative++;
-          else if (sentiment.includes('neutre')) sentimentCounts.neutral++;
+          if (isIncomplete) {
+            sentimentCounts.incomplete++;
+          } else if (sentiment.includes('positif')) {
+            sentimentCounts.positive++;
+          } else if (sentiment.includes('négatif')) {
+            sentimentCounts.negative++;
+          } else if (sentiment.includes('neutre')) {
+            sentimentCounts.neutral++;
+          }
         });
         
         document.getElementById('totalComments').textContent = visibleComments.length;
         document.getElementById('positiveCount').textContent = sentimentCounts.positive;
         document.getElementById('neutralCount').textContent = sentimentCounts.neutral;
         document.getElementById('negativeCount').textContent = sentimentCounts.negative;
+        document.getElementById('incompleteCount').textContent = sentimentCounts.incomplete;
         document.getElementById('avgLength').textContent = Math.round(totalWords / visibleComments.length) || 0;
         document.getElementById('commentCount').textContent = `${visibleComments.length} commentaires`;
       }
@@ -526,6 +728,7 @@
           const text = comment.dataset.text;
           const author = comment.dataset.author;
           const sentiment = comment.dataset.sentiment;
+          const isIncomplete = comment.dataset.incomplete === 'true';
           
           const matchesSearch = text.includes(searchTerm) || author.includes(searchTerm);
           const matchesSentiment = activeSentiment === 'all' || 
@@ -533,7 +736,9 @@
             (activeSentiment === 'negative' && sentiment.includes('négatif')) ||
             (activeSentiment === 'neutral' && sentiment.includes('neutre'));
           
-          if (matchesSearch && matchesSentiment) {
+          const matchesIncompleteFilter = !hideIncomplete || !isIncomplete;
+          
+          if (matchesSearch && matchesSentiment && matchesIncompleteFilter) {
             comment.classList.remove('hidden');
           } else {
             comment.classList.add('hidden');
@@ -580,6 +785,25 @@
       // Initialize
       updateAnalytics();
     });
+
+    // Expand/collapse functionality
+    function toggleExpand(button) {
+      const commentText = button.previousElementSibling;
+      const fullText = commentText.getAttribute('data-full-text');
+      const isExpanded = !commentText.classList.contains('truncated');
+      
+      if (isExpanded) {
+        // Collapse
+        commentText.classList.add('truncated');
+        commentText.textContent = fullText;
+        button.textContent = 'Lire plus';
+      } else {
+        // Expand
+        commentText.classList.remove('truncated');
+        commentText.textContent = fullText;
+        button.textContent = 'Réduire';
+      }
+    }
   </script>
 </body>
 </html>
