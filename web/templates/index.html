@@ -1,27 +1,125 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-  <meta charset="UTF-8">
+  <meta charset="UTF-8" />
   <title>Livre d'or</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 2rem auto;
+      max-width: 700px;
+      padding: 0 1rem;
+      background: #f5f5f5;
+      color: #333;
+    }
+    h1, h2 {
+      text-align: center;
+    }
+    form {
+      background: white;
+      padding: 1rem;
+      margin-bottom: 2rem;
+      border-radius: 6px;
+      box-shadow: 0 0 10px #ccc;
+    }
+    input[type="text"], textarea {
+      width: 100%;
+      padding: 0.5rem;
+      margin: 0.4rem 0 1rem 0;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      font-size: 1rem;
+      resize: vertical;
+    }
+    button {
+      background-color: #007BFF;
+      border: none;
+      color: white;
+      padding: 0.6rem 1.2rem;
+      font-size: 1rem;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+    button:hover {
+      background-color: #0056b3;
+    }
+    .comments-list p {
+      background: white;
+      padding: 1rem;
+      border-radius: 6px;
+      box-shadow: 0 0 5px #ddd;
+      margin-bottom: 1rem;
+    }
+    .summary, .sentiment, .keywords {
+      font-style: italic;
+      color: #555;
+      margin-left: 1rem;
+      font-size: 0.9rem;
+    }
+    .keywords span {
+      background: #e0f0ff;
+      padding: 0.15rem 0.4rem;
+      margin-right: 0.3rem;
+      border-radius: 4px;
+      font-weight: bold;
+      color: #007BFF;
+    }
+    .info {
+      text-align: center;
+      margin-bottom: 1rem;
+      font-weight: bold;
+      color: green;
+    }
+  </style>
 </head>
 <body>
   <h1>Livre d'or</h1>
-  <form action="/" method="post">
-    <input type="text" name="name" placeholder="Votre nom" required>
-    <br><br>
+
+  <form method="post" action="/">
+    <label for="app_id">Steam App ID :</label><br/>
+    <input type="text" id="app_id" name="app_id" placeholder="Exemple : 729040" required value="{{ app_id }}" />
+    <br/>
+    <label for="num_per_page">Nombre de reviews à récupérer :</label><br/>
+    <input type="number" id="num_per_page" name="num_per_page" min="1" max="100" value="{{ num_per_page }}" />
+    <br/>
+    <button type="submit">Récupérer les reviews Steam</button>
+  </form>
+
+  {% if new_count is not none %}
+    <p class="info">Nombre de nouveaux commentaires ajoutés : {{ new_count }}</p>
+  {% endif %}
+
+  <hr/>
+
+  <form action="/add_comment" method="post">
+    <input type="text" name="name" placeholder="Votre nom" required />
+    <br /><br />
     <textarea name="comment" placeholder="Votre message" required></textarea>
-    <br><br>
+    <br /><br />
     <button type="submit">Envoyer</button>
   </form>
-  <hr>
+
+  <hr />
   <h2>Commentaires :</h2>
-  <ul>
+
+  <div class="comments-list">
     {% for comment in comments %}
-  <p><strong>{{ comment[1] }}</strong> : {{ comment[2] }}</p>
-  <p>Résumé : {{ comment[3] }}</p>
-  <p>Sentiment : {{ comment[4] }}</p>
-  <p>Mots clés : {{ comment[5] }}</p>
-{% endfor %}
-  </ul>
+      <p><strong>{{ comment[1] }}</strong> : {{ comment[2] }}</p>
+      {% if comment[3] %}
+        <p class="summary">Résumé : {{ comment[3] }}</p>
+      {% endif %}
+      {% if comment[4] %}
+        <p class="sentiment">Sentiment : {{ comment[4] }}</p>
+      {% endif %}
+      {% if comment[5] %}
+        <p class="keywords">Mots clés :
+          {% for mot in comment[5] %}
+            <span>{{ mot }}</span>
+          {% endfor %}
+        </p>
+      {% endif %}
+      <hr/>
+    {% endfor %}
+  </div>
 </body>
 </html>
